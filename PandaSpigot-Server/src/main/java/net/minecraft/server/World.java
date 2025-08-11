@@ -1249,6 +1249,7 @@ public abstract class World implements IBlockAccess {
         entity.die();
         if (entity instanceof EntityHuman) {
             this.players.remove(entity);
+            this.worldMaps.removeTrackedPlayer((EntityHuman) entity); // FlamePaper - Minetick fix memory leaks
             this.everyoneSleeping();
         }
 
@@ -1278,6 +1279,7 @@ public abstract class World implements IBlockAccess {
     }
 
     public List<AxisAlignedBB> getCubes(Entity entity, AxisAlignedBB axisalignedbb) {
+        int limit = 3 * 9;
         ArrayList arraylist = Lists.newArrayList();
         int i = MathHelper.floor(axisalignedbb.a);
         int j = MathHelper.floor(axisalignedbb.d + 1.0D);
@@ -1298,6 +1300,7 @@ public abstract class World implements IBlockAccess {
             int cx = chunkx << 4;
             for ( int chunkz = ( i1 >> 4 ); chunkz <= ( ( j1 - 1 ) >> 4 ); chunkz++ )
             {
+                if (limit-- < 0) return arraylist;
                 Chunk chunk = this.getChunkIfLoaded( chunkx, chunkz );
                 if ( chunk == null )
                 {
@@ -1404,7 +1407,81 @@ public abstract class World implements IBlockAccess {
         return entity.locX > d0 && entity.locX < d2 && entity.locZ > d1 && entity.locZ < d3;
     }
 
+    public List<AxisAlignedBB> getCubesNoEntities(Entity entity, AxisAlignedBB axisalignedbb) {
+        ArrayList arraylist = Lists.newArrayList();
+        int i = MathHelper.floor(axisalignedbb.a);
+        int j = MathHelper.floor(axisalignedbb.d + 1.0D);
+        int k = MathHelper.floor(axisalignedbb.b);
+        int l = MathHelper.floor(axisalignedbb.e + 1.0D);
+        int i1 = MathHelper.floor(axisalignedbb.c);
+        int j1 = MathHelper.floor(axisalignedbb.f + 1.0D);
+        WorldBorder worldborder = this.getWorldBorder();
+        boolean flag = entity.aT();
+        boolean flag1 = this.a(worldborder, entity);
+
+        // Spigot start
+        int ystart = Math.max((k - 1), 0);
+        for (int chunkx = (i >> 4); chunkx <= ((j - 1) >> 4); chunkx++) {
+            int cx = chunkx << 4;
+            for (int chunkz = (i1 >> 4); chunkz <= ((j1 - 1) >> 4); chunkz++) {
+                Chunk chunk = this.getChunkIfLoaded(chunkx, chunkz);
+                if (chunk == null) {
+                    // PaperSpigot start
+                    if (entity.loadChunks) {
+                        chunk = ((ChunkProviderServer) entity.world.chunkProvider).getChunkAt(chunkx, chunkz);
+                    } else {
+                        entity.inUnloadedChunk = true; // PaperSpigot - Remove entities in unloaded chunks
+                        continue;
+                    }
+                    // PaperSpigot end
+                }
+                int cz = chunkz << 4;
+                // Compute ranges within chunk
+                int xstart = Math.max(i, cx);
+                int xend = Math.min(j, (cx + 16));
+                int zstart = Math.max(i1, cz);
+                int zend = Math.min(j1, (cz + 16));
+                // Loop through blocks within chunk
+                for (int x = xstart; x < xend; x++) {
+                    for (int z = zstart; z < zend; z++) {
+                        for (int y = ystart; y < l; y++) {
+                            BlockPosition blockposition = new BlockPosition(x, y, z);
+
+                            if (flag && flag1) {
+                                entity.h(false);
+                            } else if (!flag && !flag1) {
+                                entity.h(true);
+                            }
+
+                            IBlockData block;
+                            if (!this.getWorldBorder().a(blockposition) && flag1) {
+                                block = Blocks.STONE.getBlockData();
+                            } else {
+                                block = chunk.getBlockData(blockposition);
+                            }
+                            if (block != null && block != Blocks.AIR) {
+                                // PaperSpigot start - FallingBlocks and TNT collide with specific non-collidable blocks
+                                Block b = block.getBlock();
+                                if (entity.world.paperSpigotConfig.fallingBlocksCollideWithSigns && (entity instanceof EntityTNTPrimed || entity instanceof EntityFallingBlock) && (b instanceof BlockSign || b instanceof BlockFenceGate || b instanceof BlockTorch || b instanceof BlockButtonAbstract || b instanceof BlockLever || b instanceof BlockTripwireHook || b instanceof BlockTripwire || b instanceof BlockChest || b instanceof BlockSlowSand || b instanceof BlockBed || b instanceof BlockEnderChest || b instanceof BlockEnchantmentTable || b instanceof BlockBrewingStand)) {
+                                    AxisAlignedBB aabb = AxisAlignedBB.a(x, y, z, x + 1.0, y + 1.0, z + 1.0);
+                                    if (axisalignedbb.b(aabb)) arraylist.add(aabb);
+                                } else {
+                                    b.a(this, blockposition, block, axisalignedbb, arraylist, entity);
+                                }
+                                // PaperSpigot end
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Spigot end
+
+        return arraylist;
+    }
+
     public List<AxisAlignedBB> a(AxisAlignedBB axisalignedbb) {
+        int limit = 3 * 9;
         ArrayList arraylist = Lists.newArrayList();
         int i = MathHelper.floor(axisalignedbb.a);
         int j = MathHelper.floor(axisalignedbb.d + 1.0D);
@@ -1416,6 +1493,7 @@ public abstract class World implements IBlockAccess {
 
         for (int k1 = i; k1 < j; ++k1) {
             for (int l1 = i1; l1 < j1; ++l1) {
+                if (limit-- < 0) return arraylist;
                 if (this.isLoaded(blockposition_mutableblockposition.c(k1, 64, l1))) {
                     for (int i2 = k - 1; i2 < l; ++i2) {
                         blockposition_mutableblockposition.c(k1, i2, l1);
@@ -2753,6 +2831,7 @@ public abstract class World implements IBlockAccess {
     }
 
     public List<Entity> a(Entity entity, AxisAlignedBB axisalignedbb, Predicate<? super Entity> predicate) {
+        int limit = 9 * 3;
         ArrayList arraylist = Lists.newArrayList();
         int i = MathHelper.floor((axisalignedbb.a - 2.0D) / 16.0D);
         int j = MathHelper.floor((axisalignedbb.d + 2.0D) / 16.0D);
@@ -2760,7 +2839,9 @@ public abstract class World implements IBlockAccess {
         int l = MathHelper.floor((axisalignedbb.f + 2.0D) / 16.0D);
 
         for (int i1 = i; i1 <= j; ++i1) {
+            if (limit-- <= 0) return arraylist;
             for (int j1 = k; j1 <= l; ++j1) {
+                if (limit-- <= 0) return arraylist;
                 // PandaSpigot start - Use getChunkIfLoaded
                 Chunk chunk = this.getChunkIfLoaded(i1, j1);
                 if (chunk != null) {
@@ -2808,6 +2889,7 @@ public abstract class World implements IBlockAccess {
     }
 
     public <T extends Entity> List<T> a(Class<? extends T> oclass, AxisAlignedBB axisalignedbb, Predicate<? super T> predicate) {
+        int limit = 9 * 3;
         int i = MathHelper.floor((axisalignedbb.a - 2.0D) / 16.0D);
         int j = MathHelper.floor((axisalignedbb.d + 2.0D) / 16.0D);
         int k = MathHelper.floor((axisalignedbb.c - 2.0D) / 16.0D);
@@ -2816,6 +2898,7 @@ public abstract class World implements IBlockAccess {
 
         for (int i1 = i; i1 <= j; ++i1) {
             for (int j1 = k; j1 <= l; ++j1) {
+                if (limit-- <= 0) return arraylist;
                 if (this.isChunkLoaded(i1, j1, true)) {
                     this.getChunkAt(i1, j1).a(oclass, axisalignedbb, arraylist, predicate);
                 }

@@ -430,7 +430,7 @@ public abstract class Entity implements ICommandListener {
     }
 
     private boolean b(AxisAlignedBB axisalignedbb) {
-        return this.world.getCubes(this, axisalignedbb).isEmpty() && !this.world.containsLiquid(axisalignedbb);
+        return this.world.getCubesNoEntities(this, axisalignedbb).isEmpty() && !this.world.containsLiquid(axisalignedbb);
     }
 
     /**
@@ -555,7 +555,7 @@ public abstract class Entity implements ICommandListener {
             this.a(this.getBoundingBox().c(0.0D, d1, 0.0D));
             boolean flag1 = this.onGround || d7 != d1 && d7 < 0.0D;
 
-            if (axisScan) list = this.world.getCubes(this, this.getBoundingBox().a(d0, 0, 0)); // PandaSpigot - get x axis blocks
+            if (axisScan) list = this.world.getCubesNoEntities(this, this.getBoundingBox().a(d0, 0, 0)); // PandaSpigot - get x axis blocks
 
             AxisAlignedBB axisalignedbb2;
             Iterator iterator1;
@@ -566,7 +566,7 @@ public abstract class Entity implements ICommandListener {
 
             this.a(this.getBoundingBox().c(d0, 0.0D, 0.0D));
 
-            if (axisScan) list = this.world.getCubes(this, this.getBoundingBox().a(0, 0, d2)); // PandaSpigot - get z axis blocks
+            if (axisScan) list = this.world.getCubesNoEntities(this, this.getBoundingBox().a(0, 0, d2)); // PandaSpigot - get z axis blocks
 
             for (iterator1 = list.iterator(); iterator1.hasNext(); d2 = axisalignedbb2.c(this.getBoundingBox(), d2)) {
                 axisalignedbb2 = (AxisAlignedBB) iterator1.next();
@@ -581,7 +581,7 @@ public abstract class Entity implements ICommandListener {
 
                 this.a(axisalignedbb);
                 d1 = (double) this.S;
-                List list1 = this.world.getCubes(this, this.getBoundingBox().a(d6, d1, d8));
+                List list1 = this.world.getCubesNoEntities(this, this.getBoundingBox().a(d6, d1, d8));
                 AxisAlignedBB axisalignedbb4 = this.getBoundingBox();
                 AxisAlignedBB axisalignedbb5 = axisalignedbb4.a(d6, 0.0D, d8);
                 double d13 = d1;

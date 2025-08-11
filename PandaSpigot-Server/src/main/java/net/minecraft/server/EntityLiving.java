@@ -14,6 +14,8 @@ import java.util.UUID;
 import java.util.ArrayList;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.hpfxd.pandaspigot.PandaSpigot;
+import com.hpfxd.pandaspigot.knockback.KnockbackProfile;
 import org.bukkit.craftbukkit.event.CraftEventFactory;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Vehicle;
@@ -891,10 +893,9 @@ public abstract class EntityLiving extends Entity {
 
 
     private double friction(Entity entity, double range) {
-        com.hpfxd.pandaspigot.config.PandaSpigotWorldConfig.KnockbackConfig knockbackConfig = entity.world.pandaSpigotConfig.knockback;
-
+        KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
         if(range < 1) return 2.0D;
-        double startRange = knockbackConfig.startRange;
+        double startRange = knockback.getStartRange();
         double minFriction = 1.0D;
         double maxFriction = 2.0D;
         double t = (range - startRange) / (maxFriction - startRange);
@@ -917,7 +918,7 @@ public abstract class EntityLiving extends Entity {
         if (this.random.nextDouble() >= this.getAttributeInstance(GenericAttributes.c).getValue()) {
             this.ai = true;
 
-            com.hpfxd.pandaspigot.config.PandaSpigotWorldConfig.KnockbackConfig knockbackConfig = entity.world.pandaSpigotConfig.knockback;
+            KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
             double friction = friction(entity, verticalDistance((EntityPlayer) this, entity));
 
             this.motY /= friction;
@@ -928,12 +929,12 @@ public abstract class EntityLiving extends Entity {
             double x = (yawX + d0) / 2.0D;
             double z = (yawZ + d1) / 2.0D;
 
-            this.motX -= x * knockbackConfig.horizontal;
-            this.motY += knockbackConfig.vertical;
-            this.motZ -= z * knockbackConfig.horizontal;
+            this.motX -= x * knockback.getHorizontal();
+            this.motY += knockback.getVertical();
+            this.motZ -= z * knockback.getHorizontal();
     
-            if (this.motY > knockbackConfig.verticalLimit) {
-                this.motY = knockbackConfig.verticalLimit;
+            if (this.motY > knockback.getVerticalLimit()) {
+                this.motY = knockback.getVerticalLimit();
             }
             // PandaSpigot end
 
@@ -1896,5 +1897,15 @@ public abstract class EntityLiving extends Entity {
 
     protected void bP() {
         this.updateEffects = true;
+    }
+
+    private KnockbackProfile knockbackProfile;
+
+    public void setKnockbackProfile(KnockbackProfile knockbackProfile) {
+        this.knockbackProfile = knockbackProfile;
+    }
+
+    public KnockbackProfile getKnockbackProfile() {
+        return this.knockbackProfile;
     }
 }

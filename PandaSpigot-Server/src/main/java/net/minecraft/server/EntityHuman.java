@@ -2,6 +2,8 @@ package net.minecraft.server;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import com.hpfxd.pandaspigot.PandaSpigot;
+import com.hpfxd.pandaspigot.knockback.KnockbackProfile;
 import com.mojang.authlib.GameProfile;
 import java.util.Collection;
 import java.util.Iterator;
@@ -1019,12 +1021,12 @@ public abstract class EntityHuman extends EntityLiving {
 
                     if (flag2) {
                         if (i > 0) {
-                            com.hpfxd.pandaspigot.config.PandaSpigotWorldConfig.KnockbackConfig knockbackConfig = entity.world.pandaSpigotConfig.knockback;
-                            double extraHorizontal = knockbackConfig.extraHorizontal;
-                            double extraVertical = knockbackConfig.extraVertical;
-                            double startRange = knockbackConfig.startRange;
-                            double maxRange = knockbackConfig.maxRange;
-                            double rangeFactor = knockbackConfig.rangeFactor;
+                            KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
+                            double extraHorizontal = knockback.getExtraHorizontal();
+                            double extraVertical = knockback.getExtraVertical();
+                            double startRange = knockback.getStartRange();
+                            double maxRange = knockback.getMaxRangeReduction();
+                            double rangeFactor = knockback.getRangeFactor();
                             double range = this.horizontalDistance((EntityPlayer) this, entity);
                             double rangeReduction = Math.min(Math.max((range - startRange) *
                                     rangeFactor, 0),

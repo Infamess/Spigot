@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
+import com.hpfxd.pandaspigot.PandaSpigot;
+import com.hpfxd.pandaspigot.knockback.KnockbackConfig;
 import net.minecraft.server.*;
 
 import org.bukkit.BanList;
@@ -773,6 +775,9 @@ public final class CraftServer implements Server {
         resetRecipes();
         org.spigotmc.SpigotConfig.registerCommands(); // Spigot
         org.github.paperspigot.PaperSpigotConfig.registerCommands(); // PaperSpigot
+
+        PandaSpigot.getInstance().setConfig(new KnockbackConfig());
+        PandaSpigot.getInstance().registerCommands();
 
         overrideAllCommandBlockCommands = commandsConfiguration.getStringList("command-block-overrides").contains("*");
 

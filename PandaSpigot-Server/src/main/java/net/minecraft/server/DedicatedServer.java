@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+
+import com.hpfxd.pandaspigot.PandaSpigot;
+import com.hpfxd.pandaspigot.knockback.KnockbackConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -215,6 +218,9 @@ public class DedicatedServer extends MinecraftServer implements IMinecraftServer
             org.github.paperspigot.PaperSpigotConfig.init((File) options.valueOf("paper-settings"));
             org.github.paperspigot.PaperSpigotConfig.registerCommands();
             // PaperSpigot end
+
+            PandaSpigot.getInstance().setConfig(new KnockbackConfig());
+            PandaSpigot.getInstance().registerCommands();
 
             DedicatedServer.LOGGER.info("Generating keypair");
             this.a(MinecraftEncryption.b());

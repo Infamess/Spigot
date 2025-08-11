@@ -40,22 +40,6 @@ public class PandaSpigotWorldConfig {
             "By default, this is true (vanilla behaviour)")
     public boolean randomArrowTrajectory = true;
 
-    @Comment("These options control velocity players receive when damaged.")
-    public KnockbackConfig knockback;
-
-    @ConfigSerializable
-    public static class KnockbackConfig {
-        public double friction = 2.0;
-        public double horizontal = 0.5273;
-        public double vertical = 0.8835;
-        public double verticalLimit = 0.361375;
-        public double extraHorizontal = 0.5;
-        public double extraVertical = 0.0;
-        public double startRange = 1.4;
-        public double rangeFactor = 0.1;
-        public double maxRange = 0.45;
-    }
-
     public boolean optimizeTntMovement = false; // May not fully emulate vanilla behavior
 
     public boolean optimizeLiquidExplosions = true; // This seems like a pretty sane default

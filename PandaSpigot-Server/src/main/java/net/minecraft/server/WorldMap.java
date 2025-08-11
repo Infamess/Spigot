@@ -313,4 +313,12 @@ public class WorldMap extends PersistentBase {
 
         }
     }
+
+    // FlamePaper - Minetick fix memory leaks
+    public void untrackPlayer(EntityHuman entityhuman) {
+        if (this.i.containsKey(entityhuman)) {
+            this.i.remove(entityhuman);
+            this.g.removeIf(worldMapHumanTracker -> worldMapHumanTracker.trackee == entityhuman);
+        }
+    }
 }

@@ -456,6 +456,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
     // PandaSpigot end
 
     public void close(IChatBaseComponent ichatbasecomponent) {
+        this.i.clear(); // FlamePaper - Minetick fix memory leaks
         // Spigot Start
         this.preparing = false;
         clearPacketQueue(); // PandaSpigot
@@ -541,7 +542,10 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
     }
 
     protected void channelRead0(ChannelHandlerContext channelhandlercontext, Packet object) throws Exception { // CraftBukkit - fix decompile error
-        this.a(channelhandlercontext, (Packet) object);
+        // FlamePaper - Check if channel is opened before reading packet
+        if (g()) {
+            this.a(channelhandlercontext, object);
+        }
     }
 
     static class QueuedPacket {
