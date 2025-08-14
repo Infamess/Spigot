@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.UUID;
 
 // CraftBukkit start
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.entity.CraftItem;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
@@ -125,6 +127,10 @@ public abstract class EntityHuman extends EntityLiving {
 
     public boolean isBlocking() {
         return this.bS() && this.g.getItem().e(this.g) == EnumAnimation.BLOCK;
+    }
+
+    public boolean isBowing() {
+        return this.bS() && this.g.getItem().e(this.g) == EnumAnimation.BOW;
     }
 
     public void t_() {
@@ -956,11 +962,10 @@ public abstract class EntityHuman extends EntityLiving {
         return -0.35D;
     }
 
-    public double horizontalDistance(EntityPlayer victim, Entity source) {
-        double d0 = victim.locX - source.locX;
-        double d2 = victim.locZ - source.locZ;
-
-        return Math.sqrt(Math.hypot(d0, d2));
+    public double horizontalDistance(Entity entity) {
+        double d0 = entity.locX - this.locX;
+        double d2 = entity.locZ - this.locZ;
+        return Math.hypot(d0, d2);
     }
 
     public void attack(Entity entity) {
@@ -1021,27 +1026,57 @@ public abstract class EntityHuman extends EntityLiving {
 
                     if (flag2) {
                         if (i > 0) {
-                            KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
-                            double extraHorizontal = knockback.getExtraHorizontal();
+                            if (entity instanceof EntityPlayer) {
+                                KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
+                                knockback.attackEntity(
+                                    (EntityPlayer) this,
+                                    entity,
+                                    shouldDealSprintKnockback,
+                                    i,
+                                    new double[]{d0, d1, d2}
+                                );
+                                return;
+                            }
+
+
+                            /*double extraHorizontal = knockback.getExtraHorizontal();
                             double extraVertical = knockback.getExtraVertical();
                             double startRange = knockback.getStartRange();
                             double maxRange = knockback.getMaxRangeReduction();
                             double rangeFactor = knockback.getRangeFactor();
-                            double range = this.horizontalDistance((EntityPlayer) this, entity);
+                            double range = horizontalDistance(entity);
                             double rangeReduction = Math.min(Math.max((range - startRange) *
                                     rangeFactor, 0),
                                 maxRange);
 
-                            entity.g(-MathHelper.sin(this.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction),
-                                extraVertical,
-                                MathHelper.cos(this.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction));
+                            //staylords stuff
+                            double xDiff2 = entity.locX - this.locX;
+                            double zDiff2 = entity.locZ - this.locZ;
 
+                            double distance2 = Math.sqrt( xDiff2 * xDiff2 + zDiff2 * zDiff2);
+
+                            double horizontalReduction = 0.0;
+
+                            if (distance2 >= knockback.getStartRange()) {
+                                double modifiedRange = knockback.getRangeFactor() * (distance2 - knockback.getStartRange());
+                                horizontalReduction = Math.min(modifiedRange, knockback.getMaxRangeReduction());
+                            }
+
+                            if (distance2 > 1.0E-5) {
+                                double finalHorizontal = extraHorizontal * (1.0 - horizontalReduction);
+                                entity.g(-(xDiff2 / distance2 * finalHorizontal), 0.0, -(zDiff2 / distance2 * finalHorizontal));
+                            }
+
+                           // entity.g(-MathHelper.sin(this.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction),
+                         //       extraVertical,
+                         //       MathHelper.cos(this.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction));
                             this.motX *= 0.6D;
                             this.motZ *= 0.6D;
                             if (this.shouldDealSprintKnockback) this.shouldDealSprintKnockback = false;
+                        }*/
                         }
 
-                        if (entity instanceof EntityPlayer && entity.velocityChanged) {
+                        /*if (entity instanceof EntityPlayer && entity.velocityChanged) {
                             // CraftBukkit start - Add Velocity Event
                             boolean cancelled = false;
                             Player player = (Player) entity.getBukkitEntity();
@@ -1064,7 +1099,7 @@ public abstract class EntityHuman extends EntityLiving {
                                 entity.motZ = d2;
                             }
                             // CraftBukkit end
-                        }
+                        }*/
 
                         if (flag) {
                             this.b(entity);
@@ -1125,6 +1160,21 @@ public abstract class EntityHuman extends EntityLiving {
 
             }
         }
+    }
+
+    private double getRangeReduction(Location attackerLocation, Location victimLocation) {
+        KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
+
+        double distanceX = attackerLocation.getX() - victimLocation.getX();
+        double distanceZ = attackerLocation.getZ() - victimLocation.getZ();
+
+        double range = Math.hypot(distanceX, distanceZ);
+        double rangeReduction = Math.max((range - knockback.getStartRange()) * knockback.getRangeFactor(), 0);
+
+        if (rangeReduction > knockback.getMaxRangeReduction()) {
+            rangeReduction = knockback.getMaxRangeReduction();
+        }
+        return rangeReduction;
     }
 
     public void b(Entity entity) {}

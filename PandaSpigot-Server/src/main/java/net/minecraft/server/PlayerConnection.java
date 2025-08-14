@@ -1291,38 +1291,38 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
         }
         // CraftBukkit end
         this.player.resetIdleTimer();
-        switch (PlayerConnection.SyntheticClass_1.b[packetplayinentityaction.b().ordinal()]) {
-        case 1:
+        switch (packetplayinentityaction.b()) {
+        case START_SNEAKING:
             this.player.setSneaking(true);
             break;
 
-        case 2:
+        case STOP_SNEAKING:
             this.player.setSneaking(false);
             break;
 
-        case 3:
+        case START_SPRINTING:
             this.player.setSprinting(true);
             this.player.setSneaking(false);
             this.player.setServerSideSprinting(true);
             break;
 
-        case 4:
+        case STOP_SPRINTING:
             this.player.setSprinting(false);
             this.player.setServerSideSprinting(false);
             break;
 
-        case 5:
+        case STOP_SLEEPING:
             this.player.a(false, true, true);
             // this.checkMovement = false; // CraftBukkit - this is handled in teleport
             break;
 
-        case 6:
+        case RIDING_JUMP:
             if (this.player.vehicle instanceof EntityHorse) {
                 ((EntityHorse) this.player.vehicle).v(packetplayinentityaction.c());
             }
             break;
 
-        case 7:
+        case OPEN_INVENTORY:
             if (this.player.vehicle instanceof EntityHorse) {
                 ((EntityHorse) this.player.vehicle).g((EntityHuman) this.player);
             }

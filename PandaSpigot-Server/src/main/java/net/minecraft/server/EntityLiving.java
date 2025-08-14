@@ -15,7 +15,9 @@ import java.util.ArrayList;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.hpfxd.pandaspigot.PandaSpigot;
+import com.hpfxd.pandaspigot.knockback.CraftKnockbackProfile;
 import com.hpfxd.pandaspigot.knockback.KnockbackProfile;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.event.CraftEventFactory;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Vehicle;
@@ -865,7 +867,7 @@ public abstract class EntityLiving extends Entity {
 
             if (this.ba() && this.world.getGameRules().getBoolean("doMobLoot")) {
                 this.drops = new ArrayList<org.bukkit.inventory.ItemStack>(); // CraftBukkit - Setup drop capture
-                
+
                 this.dropDeathLoot(this.lastDamageByPlayerTime > 0, i);
                 this.dropEquipment(this.lastDamageByPlayerTime > 0, i);
                 if (this.lastDamageByPlayerTime > 0 && this.random.nextFloat() < 0.025F + (float) i * 0.01F) {
@@ -884,20 +886,21 @@ public abstract class EntityLiving extends Entity {
     }
 
     protected void dropEquipment(boolean flag, int i) {}
-
     public double verticalDistance(EntityPlayer victim, Entity source) {
-        double d = victim.locY - source.locY;
-
-        return d;
+        return victim.locY - source.locY;
     }
 
 
-    private double friction(Entity entity, double range) {
+    private double friction(double range) {
         KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
-        if(range < 1) return 2.0D;
+
+        if (range < 1) return 2.0D;
+
         double startRange = knockback.getStartRange();
+
         double minFriction = 1.0D;
         double maxFriction = 2.0D;
+
         double t = (range - startRange) / (maxFriction - startRange);
         t = Math.max(0.0, Math.min(t, 1.0));
 
@@ -918,21 +921,43 @@ public abstract class EntityLiving extends Entity {
         if (this.random.nextDouble() >= this.getAttributeInstance(GenericAttributes.c).getValue()) {
             this.ai = true;
 
+            if (this instanceof EntityPlayer) {
+                return;
+            }
+
             KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
-            double friction = friction(entity, verticalDistance((EntityPlayer) this, entity));
+            double friction = friction(verticalDistance((EntityPlayer) this, entity));
+
+            EntityPlayer attacker = (EntityPlayer) this;
+            Entity attacked = entity;
+
+            double yawX = -MathHelper.sin(attacker.yaw * 3.1415926F / 180.0F);
+            double yawZ = MathHelper.cos(attacker.yaw * 3.1415926F / 180.0F);
+
+            double distanceX = attacked.locX - attacker.locX;
+
+            double distanceZ;
+
+            for (distanceZ = attacked.locZ - attacker.locZ; distanceX * distanceX + distanceZ * distanceZ < 1.0E-4D; distanceZ = (Math.random() - Math.random()) * 0.01D) {
+                distanceX = (Math.random() - Math.random()) * 0.01D;
+            }
+
+            double distance = MathHelper.sqrt(distanceX * distanceX + distanceZ + distanceZ);
+            distanceX /= distance;
+            distanceZ /= distance;
+
+        double x = (yawX + distanceX) / 2.0D;
+         double z = (yawZ + distanceZ) / 2.0D;
+
+           // double x = (yawX + -d0) / 2.0D;
+          //  double z = (yawZ + -d1) / 2.0D;
 
             this.motY /= friction;
 
-            double yawX = -MathHelper.sin(entity.yaw * 3.1415926F / 180.0F);
-            double yawZ = MathHelper.cos(entity.yaw * 3.1415926F / 180.0F);
-
-            double x = (yawX + d0) / 2.0D;
-            double z = (yawZ + d1) / 2.0D;
-
-            this.motX -= x * knockback.getHorizontal();
+            this.motX += x * knockback.getHorizontal();
             this.motY += knockback.getVertical();
-            this.motZ -= z * knockback.getHorizontal();
-    
+            this.motZ += z * knockback.getHorizontal();
+
             if (this.motY > knockback.getVerticalLimit()) {
                 this.motY = knockback.getVerticalLimit();
             }
@@ -1037,7 +1062,7 @@ public abstract class EntityLiving extends Entity {
             int i;
             int j;
             float f1;
-            
+
             // CraftBukkit - Moved to d(DamageSource, float)
             if (false && this.hasEffect(MobEffectList.RESISTANCE) && damagesource != DamageSource.OUT_OF_WORLD) {
                 i = (this.getEffect(MobEffectList.RESISTANCE).getAmplifier() + 1) * 5;

@@ -1,5 +1,8 @@
 package com.hpfxd.pandaspigot.knockback;
 
+import net.minecraft.server.Entity;
+import net.minecraft.server.EntityPlayer;
+
 public interface KnockbackProfile {
     String getName();
 
@@ -38,4 +41,6 @@ public interface KnockbackProfile {
     void setVerticalLimit(double verticalLimit);
 
     void save();
+
+    void attackEntity(EntityPlayer attacker, Entity attacked, boolean shouldDealSprintKnockback, int i, double[] velocity);
 }
