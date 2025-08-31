@@ -167,6 +167,8 @@ public class CraftKnockbackProfile implements KnockbackProfile {
 
     @Override
     public void attackEntity(EntityPlayer attacker, Entity attacked, boolean shouldDealSprintKnockback, int i, double[] velocity) {
+        attacked.ai = true;
+
         double friction = friction(verticalDistance(attacked, attacker));
 
         double yawX = -MathHelper.sin(attacker.yaw * (float) Math.PI / 180.0F);
@@ -187,49 +189,45 @@ public class CraftKnockbackProfile implements KnockbackProfile {
         double x = (yawX + distanceX) / 2.0D;
         double z = (yawZ + distanceZ) / 2.0D;
 
-        // double x = (yawX + -d0) / 2.0D;
-        //  double z = (yawZ + -d1) / 2.0D;
+        double motX = 0, motY = 0, motZ = 0;
 
-        double xDiff2 = attacked.locX - attacker.locX;
-        double zDiff2 = attacked.locZ - attacker.locZ;
+        motX += x * horizontal;
+        motY /= friction;
+        motY += vertical;
+        motZ += z * horizontal;
 
-        //double distance2 = Math.sqrt(xDiff2 * xDiff2 + zDiff2 * zDiff2);
+        if (motY > verticalLimit) {
+            motY = verticalLimit;
+        }
+
 
         double horizontalReduction = 0.0;
-
         if (distance >= getStartRange()) {
             double modifiedRange = getRangeFactor() * (distance - getStartRange());
             horizontalReduction = Math.min(modifiedRange, getMaxRangeReduction());
         }
 
         if (distance > 1.0E-5) {
-            double finalHorizontal = i * extraHorizontal *  (1.0 - horizontalReduction);
-            //attacked.g(-(xDiff2 / distance2 * finalHorizontal), 0.0, -(zDiff2 / distance2 * finalHorizontal));
+            double rangeReduction = Math.min(Math.max((distance - startRange) *
+                    rangeFactor, 0),
+                maxRangeReduction);
 
-            double d0 = -(distanceX / distance * finalHorizontal);
-            double d1 = 0.0;
-            double d2 = -(distanceZ / distance * finalHorizontal);
+            double d0 = -MathHelper.sin(attacker.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction) * (1.0 - horizontalReduction);
+            double d1 = extraVertical;
+            double d2 = MathHelper.cos(attacker.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction) * (1.0 - horizontalReduction);
 
+            motX += d0;
+            motY += d1;
+            motZ += d2;
 
-            attacked.motX += d0;
-            attacked.motY += d1;
-            attacked.motZ += d2;
-            attacked.ai = true;
+            motX *= 0.6D;
+            motZ *= 0.6D;
+            if (shouldDealSprintKnockback) attacker.shouldDealSprintKnockback = false;
         }
 
-        attacker.motX *= 0.6D;
-        attacker.motZ *= 0.6D;
-        if (shouldDealSprintKnockback) attacker.shouldDealSprintKnockback = false;
-
-        attacked.motY /= friction;
-
-        attacked.motX += x * getHorizontal();
-        attacked.motY += getVertical();
-        attacked.motZ += z * getHorizontal();
-
-        if (attacked.motY > getVerticalLimit()) {
-            attacked.motY = getVerticalLimit();
-        }
+        attacked.motX = motX;
+        attacked.motY = motY;
+        attacked.motZ = motZ;
 
         if (attacked instanceof EntityPlayer && attacked.velocityChanged) {
             boolean cancelled = false;
@@ -248,9 +246,9 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             if (!cancelled) {
                 ((EntityPlayer) attacked).playerConnection.sendPacket(new PacketPlayOutEntityVelocity(attacked));
                 attacked.velocityChanged = false;
-                attacked.motX = velocity2.getX();
-                attacked.motY = velocity2.getY();
-                attacked.motZ = velocity2.getZ();
+                attacked.motX = velocity[0];
+                attacked.motY = velocity[1];
+                attacked.motZ = velocity[2];
             }
         }
     }

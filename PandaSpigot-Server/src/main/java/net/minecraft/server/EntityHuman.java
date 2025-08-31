@@ -1019,87 +1019,43 @@ public abstract class EntityHuman extends EntityLiving {
                         // CraftBukkit end
                     }
 
-                    double d0 = entity.motX;
-                    double d1 = entity.motY;
-                    double d2 = entity.motZ;
+                    double[] oldMotions = new double[]{entity.motX, entity.motY, entity.motZ};
                     boolean flag2 = entity.damageEntity(DamageSource.playerAttack(this), f);
 
                     if (flag2) {
-                        if (i > 0) {
-                            if (entity instanceof EntityPlayer) {
-                                KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
-                                knockback.attackEntity(
-                                    (EntityPlayer) this,
-                                    entity,
-                                    shouldDealSprintKnockback,
-                                    i,
-                                    new double[]{d0, d1, d2}
-                                );
-                                return;
+                        try {
+                            KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
+
+                            knockback.attackEntity((EntityPlayer) this, entity, this.shouldDealSprintKnockback, i, oldMotions);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (entity instanceof EntityPlayer && entity.velocityChanged) {
+                                // CraftBukkit start - Add Velocity Event
+                                boolean cancelled = false;
+                                Player player = (Player) entity.getBukkitEntity();
+                                org.bukkit.util.Vector velocity = new Vector(oldMotions[0], oldMotions[1], oldMotions[2]);
+
+                                PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity.clone());
+                                world.getServer().getPluginManager().callEvent(event);
+
+                                if (event.isCancelled()) {
+                                    cancelled = true;
+                                } else if (!velocity.equals(event.getVelocity())) {
+                                    player.setVelocity(event.getVelocity());
+                                }
+
+                                if (!cancelled) {
+                                    ((EntityPlayer) entity).playerConnection.sendPacket(new PacketPlayOutEntityVelocity(entity));
+                                    entity.velocityChanged = false;
+                                    entity.motX = oldMotions[0];
+                                    entity.motY = oldMotions[1];
+                                    entity.motZ = oldMotions[2];
+                                }
+                                // CraftBukkit end
                             }
-
-
-                            /*double extraHorizontal = knockback.getExtraHorizontal();
-                            double extraVertical = knockback.getExtraVertical();
-                            double startRange = knockback.getStartRange();
-                            double maxRange = knockback.getMaxRangeReduction();
-                            double rangeFactor = knockback.getRangeFactor();
-                            double range = horizontalDistance(entity);
-                            double rangeReduction = Math.min(Math.max((range - startRange) *
-                                    rangeFactor, 0),
-                                maxRange);
-
-                            //staylords stuff
-                            double xDiff2 = entity.locX - this.locX;
-                            double zDiff2 = entity.locZ - this.locZ;
-
-                            double distance2 = Math.sqrt( xDiff2 * xDiff2 + zDiff2 * zDiff2);
-
-                            double horizontalReduction = 0.0;
-
-                            if (distance2 >= knockback.getStartRange()) {
-                                double modifiedRange = knockback.getRangeFactor() * (distance2 - knockback.getStartRange());
-                                horizontalReduction = Math.min(modifiedRange, knockback.getMaxRangeReduction());
-                            }
-
-                            if (distance2 > 1.0E-5) {
-                                double finalHorizontal = extraHorizontal * (1.0 - horizontalReduction);
-                                entity.g(-(xDiff2 / distance2 * finalHorizontal), 0.0, -(zDiff2 / distance2 * finalHorizontal));
-                            }
-
-                           // entity.g(-MathHelper.sin(this.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction),
-                         //       extraVertical,
-                         //       MathHelper.cos(this.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction));
-                            this.motX *= 0.6D;
-                            this.motZ *= 0.6D;
-                            if (this.shouldDealSprintKnockback) this.shouldDealSprintKnockback = false;
-                        }*/
                         }
-
-                        /*if (entity instanceof EntityPlayer && entity.velocityChanged) {
-                            // CraftBukkit start - Add Velocity Event
-                            boolean cancelled = false;
-                            Player player = (Player) entity.getBukkitEntity();
-                            org.bukkit.util.Vector velocity = new Vector( d0, d1, d2 );
-
-                            PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity.clone());
-                            world.getServer().getPluginManager().callEvent(event);
-
-                            if (event.isCancelled()) {
-                                cancelled = true;
-                            } else if (!velocity.equals(event.getVelocity())) {
-                                player.setVelocity(event.getVelocity());
-                            }
-
-                            if (!cancelled) {
-                                ( (EntityPlayer) entity ).playerConnection.sendPacket( new PacketPlayOutEntityVelocity( entity ) );
-                                entity.velocityChanged = false;
-                                entity.motX = d0;
-                                entity.motY = d1;
-                                entity.motZ = d2;
-                            }
-                            // CraftBukkit end
-                        }*/
+                        // HeroSpigot end
 
                         if (flag) {
                             this.b(entity);

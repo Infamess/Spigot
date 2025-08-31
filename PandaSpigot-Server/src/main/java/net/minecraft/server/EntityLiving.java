@@ -921,48 +921,9 @@ public abstract class EntityLiving extends Entity {
         if (this.random.nextDouble() >= this.getAttributeInstance(GenericAttributes.c).getValue()) {
             this.ai = true;
 
-            if (this instanceof EntityPlayer) {
+            if (this instanceof EntityHuman || entity instanceof EntityHuman) {
                 return;
             }
-
-            KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
-            double friction = friction(verticalDistance((EntityPlayer) this, entity));
-
-            EntityPlayer attacker = (EntityPlayer) this;
-            Entity attacked = entity;
-
-            double yawX = -MathHelper.sin(attacker.yaw * 3.1415926F / 180.0F);
-            double yawZ = MathHelper.cos(attacker.yaw * 3.1415926F / 180.0F);
-
-            double distanceX = attacked.locX - attacker.locX;
-
-            double distanceZ;
-
-            for (distanceZ = attacked.locZ - attacker.locZ; distanceX * distanceX + distanceZ * distanceZ < 1.0E-4D; distanceZ = (Math.random() - Math.random()) * 0.01D) {
-                distanceX = (Math.random() - Math.random()) * 0.01D;
-            }
-
-            double distance = MathHelper.sqrt(distanceX * distanceX + distanceZ + distanceZ);
-            distanceX /= distance;
-            distanceZ /= distance;
-
-        double x = (yawX + distanceX) / 2.0D;
-         double z = (yawZ + distanceZ) / 2.0D;
-
-           // double x = (yawX + -d0) / 2.0D;
-          //  double z = (yawZ + -d1) / 2.0D;
-
-            this.motY /= friction;
-
-            this.motX += x * knockback.getHorizontal();
-            this.motY += knockback.getVertical();
-            this.motZ += z * knockback.getHorizontal();
-
-            if (this.motY > knockback.getVerticalLimit()) {
-                this.motY = knockback.getVerticalLimit();
-            }
-            // PandaSpigot end
-
         }
     }
 
