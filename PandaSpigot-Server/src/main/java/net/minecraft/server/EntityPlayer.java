@@ -190,6 +190,7 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
 
     public void setServerSideSprinting(boolean flag) {
         this.shouldDealSprintKnockback = flag;
+        this.sprintingState = flag;
         if (flag) {
             this.sprintingTicks = 0;
             this.lastSprintingTick = MinecraftServer.currentTick;

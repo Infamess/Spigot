@@ -2,6 +2,7 @@ package org.bukkit.craftbukkit.entity;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.hpfxd.pandaspigot.combat.LagCompensator;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 
@@ -544,6 +545,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         if (event.isCancelled()) {
             return false;
         }
+
+        LagCompensator.INSTANCE.registerMovement(this, to);
 
         // If this player is riding another entity, we must dismount before teleporting.
         entity.mount(null);

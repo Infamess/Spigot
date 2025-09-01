@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 // CraftBukkit start
+import com.hpfxd.pandaspigot.combat.LagCompensator;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -1117,6 +1118,35 @@ public abstract class Entity implements ICommandListener {
         return d0 * d0 + d1 * d1 + d2 * d2;
     }
 
+    // WindSpigot start
+    public double distanceSqrdAccurate(Entity entity) {
+        // Only use lag compensation when both entities are players
+        if (entity instanceof EntityPlayer && this instanceof EntityPlayer) {
+            EntityPlayer entityPlayer = (EntityPlayer) entity;
+            EntityPlayer player = (EntityPlayer) this;
+
+            Location loc;
+            if (entityPlayer.playerConnection.getClass().equals(PlayerConnection.class)
+                && player.playerConnection.getClass().equals(PlayerConnection.class)) {
+                loc = LagCompensator.INSTANCE.getHistoryLocation(entityPlayer.getBukkitEntity(),
+                    player.ping);
+            } else {
+                loc = entityPlayer.getBukkitEntity().getLocation();
+            }
+            // Nacho end
+
+            double d0 = this.locX - loc.getX();
+            double d1 = this.locY - loc.getY();
+            double d2 = this.locZ - loc.getZ();
+
+            return d0 * d0 + d1 * d1 + d2 * d2;
+        } else {
+            // Fall back to regular distance calculation for non-player entities
+            return this.h(entity);
+        }
+    }
+    // WindSpigot end
+
     public void d(EntityHuman entityhuman) {}
 
     int numCollisions = 0; // Spigot
@@ -1745,7 +1775,7 @@ public abstract class Entity implements ICommandListener {
     public int lastSprintingTick;
     public boolean sprintingState = false;
 
-    public boolean shouldDealSprintKnockback ;
+    public boolean shouldDealSprintKnockback;
 
     public void setSprinting(boolean flag) {
         this.b(3, flag);

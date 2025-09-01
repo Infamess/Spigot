@@ -136,7 +136,7 @@ public class CraftKnockbackProfile implements KnockbackProfile {
     }
 
     private double friction(double range) {
-        // if (range < 1) return 2.0D;
+        if (range < 1) return 2.0D;
 
         double startRange = getStartRange();
 
@@ -167,7 +167,7 @@ public class CraftKnockbackProfile implements KnockbackProfile {
     public void attackEntity(EntityPlayer attacker, Entity attacked, boolean shouldDealSprintKnockback, int i, double[] velocity) {
         attacked.ai = true;
 
-        double friction = friction(verticalDistance(attacked, attacker));
+        double friction = 2.0D;//friction(verticalDistance(attacked, attacker));
 
         double yawX = -MathHelper.sin(attacker.yaw * (float) Math.PI / 180.0F);
         double yawZ = MathHelper.cos(attacker.yaw * (float) Math.PI / 180.0F);

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 import com.google.common.util.concurrent.Futures;
+import com.hpfxd.pandaspigot.combat.LagCompensator;
 import io.netty.buffer.Unpooled;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -282,6 +283,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
 
                         // If the event is cancelled we move the player back to their old location.
                         if (event.isCancelled()) {
+                            LagCompensator.INSTANCE.registerMovement(player, to);
                             // PandaSpigot start - Smooth teleportation
                             if (this.player.world.pandaSpigotConfig.smoothTeleportation) {
                                 this.player.playerConnection.sendPacket(new PacketPlayOutPosition(from.getX(), from.getY(), from.getZ(), 0, 0, TELEPORT_NO_ROT));
@@ -307,6 +309,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
                             return;
                         }
                     }
+                    LagCompensator.INSTANCE.registerMovement(player, to);
                 }
 
                 if (this.checkMovement && !this.player.dead) {
@@ -524,6 +527,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
             f1 = to.getPitch();
         }
 
+        LagCompensator.INSTANCE.registerMovement(player, to);
         this.internalTeleport(d0, d1, d2, f, f1, set);
     }
 
@@ -1349,14 +1353,14 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
 
         this.player.resetIdleTimer();
         if (entity != null) {
-            boolean flag = this.player.hasLineOfSight(entity);
+            boolean flag = this.player.hasLineOfSightAccurate(entity);
             double d0 = 36.0D;
 
-            if (false && !flag) { // PandaSpigot - Fix GH-244: Hit Registration Bug
-                d0 = 9.0D;
+            if (!flag) { // PandaSpigot - Fix GH-244: Hit Registration Bug
+                d0 = 12.75D;
             }
 
-            if (this.player.h(entity) < d0) {
+            if (this.player.distanceSqrdAccurate(entity) <= d0) {
                 ItemStack itemInHand = this.player.inventory.getItemInHand(); // CraftBukkit
 
                 if (packetplayinuseentity.a() == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT

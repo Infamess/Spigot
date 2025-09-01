@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 // CraftBukkit start
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.entity.CraftItem;
@@ -993,7 +994,11 @@ public abstract class EntityHuman extends EntityLiving {
 
                 boolean isInWtapTolerance = this.sprintingTicks <= 15; // wtap tolerance
 
-                if (this.shouldDealSprintKnockback || isInWtapTolerance || isSprinting())
+                Bukkit.broadcastMessage("sprintingTicks= " + this.sprintingTicks);
+                Bukkit.broadcastMessage("shouldDealSprintKB- " + this.shouldDealSprintKnockback);
+                Bukkit.broadcastMessage("isInWtapTolerance= " + isInWtapTolerance);
+
+                if (this.shouldDealSprintKnockback || isInWtapTolerance)
                     i++;
 
                 if (f > 0.0F || f1 > 0.0F) {
