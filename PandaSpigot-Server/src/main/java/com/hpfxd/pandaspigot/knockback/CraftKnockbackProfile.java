@@ -1,10 +1,8 @@
 package com.hpfxd.pandaspigot.knockback;
 
 import com.hpfxd.pandaspigot.PandaSpigot;
-import net.minecraft.server.Entity;
-import net.minecraft.server.EntityPlayer;
-import net.minecraft.server.MathHelper;
-import net.minecraft.server.PacketPlayOutEntityVelocity;
+import net.minecraft.server.*;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerVelocityEvent;
@@ -138,7 +136,7 @@ public class CraftKnockbackProfile implements KnockbackProfile {
     }
 
     private double friction(double range) {
-        if (range < 1) return 2.0D;
+        // if (range < 1) return 2.0D;
 
         double startRange = getStartRange();
 
@@ -161,8 +159,8 @@ public class CraftKnockbackProfile implements KnockbackProfile {
         }
     }
 
-    public double verticalDistance(Entity entity, EntityPlayer source) {
-        return entity.locY - source.locY;
+    public double verticalDistance(Entity attacked, EntityPlayer attacker) {
+        return attacked.locY - attacker.locY;
     }
 
     @Override
@@ -182,24 +180,22 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             distanceX = (Math.random() - Math.random()) * 0.01D;
         }
 
-        double distance = MathHelper.sqrt(distanceX * distanceX + distanceZ + distanceZ);
+        double distance = MathHelper.sqrt(distanceX * distanceX + distanceZ * distanceZ);
         distanceX /= distance;
         distanceZ /= distance;
 
         double x = (yawX + distanceX) / 2.0D;
         double z = (yawZ + distanceZ) / 2.0D;
 
-        double motX = 0, motY = 0, motZ = 0;
+        attacked.motY /= friction;
 
-        motX += x * horizontal;
-        motY /= friction;
-        motY += vertical;
-        motZ += z * horizontal;
+        attacked.motX += x * horizontal;
+        attacked.motY += vertical;
+        attacked.motZ += z * horizontal;
 
-        if (motY > verticalLimit) {
-            motY = verticalLimit;
+        if (attacked.motY > verticalLimit) {
+            attacked.motY = verticalLimit;
         }
-
 
         double horizontalReduction = 0.0;
         if (distance >= getStartRange()) {
@@ -207,7 +203,7 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             horizontalReduction = Math.min(modifiedRange, getMaxRangeReduction());
         }
 
-        if (distance > 1.0E-5) {
+        if (distance > 1.0E-5D) {
             double rangeReduction = Math.min(Math.max((distance - startRange) *
                     rangeFactor, 0),
                 maxRangeReduction);
@@ -216,18 +212,15 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             double d1 = extraVertical;
             double d2 = MathHelper.cos(attacker.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction) * (1.0 - horizontalReduction);
 
-            motX += d0;
-            motY += d1;
-            motZ += d2;
+            attacked.motX += d0;
+            attacked.motY += d1;
+            attacked.motZ += d2;
+            attacked.ai = true;
 
-            motX *= 0.6D;
-            motZ *= 0.6D;
+            attacker.motX *= 0.6D;
+            attacker.motZ *= 0.6D;
             if (shouldDealSprintKnockback) attacker.shouldDealSprintKnockback = false;
         }
-
-        attacked.motX = motX;
-        attacked.motY = motY;
-        attacked.motZ = motZ;
 
         if (attacked instanceof EntityPlayer && attacked.velocityChanged) {
             boolean cancelled = false;

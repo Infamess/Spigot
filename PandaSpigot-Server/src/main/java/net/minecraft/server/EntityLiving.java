@@ -787,16 +787,16 @@ public abstract class EntityLiving extends Entity {
                     }
 
                     if (entity != null) {
-                        double d0 = entity.locX - this.locX;
+                        double distanceX = entity.locX - this.locX;
 
-                        double d1;
+                        double distanceZ;
 
-                        for (d1 = entity.locZ - this.locZ; d0 * d0 + d1 * d1 < 1.0E-4D; d1 = (Math.random() - Math.random()) * 0.01D) {
-                            d0 = (Math.random() - Math.random()) * 0.01D;
+                        for (distanceZ = entity.locZ - this.locZ; distanceX * distanceX + distanceZ * distanceZ < 1.0E-4D; distanceZ = (Math.random() - Math.random()) * 0.01D) {
+                            distanceX = (Math.random() - Math.random()) * 0.01D;
                         }
 
-                        this.aw = (float) (MathHelper.b(d1, d0) * 180.0D / 3.1415927410125732D - (double) this.yaw);
-                        this.a(entity, f, d0, d1);
+                        this.aw = (float) (MathHelper.b(distanceZ, distanceX) * 180.0D / 3.1415927410125732D - (double) this.yaw);
+                        this.a(entity, f, distanceX, distanceZ);
                     } else {
                         this.aw = (float) ((int) (Math.random() * 2.0D) * 180);
                     }

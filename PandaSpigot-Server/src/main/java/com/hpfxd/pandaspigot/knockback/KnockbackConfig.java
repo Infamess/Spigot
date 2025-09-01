@@ -84,12 +84,12 @@ public class KnockbackConfig {
 
             profile.setHorizontal(getDouble(path + ".horizontal", 0.5273D));
             profile.setVertical(getDouble(path + ".vertical", 0.8835D));
-            profile.setExtraHorizontal(getDouble(path + ".extraHorizontal", 0.5D));
-            profile.setExtraVertical(getDouble(path + ".extraVertical", 0.0D));
-            profile.setStartRange(getDouble(path + ".startRange", 1.4D));
-            profile.setRangeFactor(getDouble(path + ".rangeFactor", 0.1D));
-            profile.setMaxRangeReduction(getDouble(path + ".maxRange", 0.45D));
-            profile.setVerticalLimit(getDouble(path + ".verticalLimit",  0.361375D));
+            profile.setExtraHorizontal(getDouble(path + ".extra-horizontal", 0.5D));
+            profile.setExtraVertical(getDouble(path + ".extra-vertical", 0.0D));
+            profile.setStartRange(getDouble(path + ".start-range", 1.4D));
+            profile.setRangeFactor(getDouble(path + ".range-factor", 0.1D));
+            profile.setMaxRangeReduction(getDouble(path + ".max-range-reduction", 0.4D));
+            profile.setVerticalLimit(getDouble(path + ".vertical-limit",  0.361375D));
         }
 
         currentKb = getKbProfileByName(getString("current", "default"));

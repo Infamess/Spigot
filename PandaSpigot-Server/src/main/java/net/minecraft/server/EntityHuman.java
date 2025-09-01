@@ -993,7 +993,7 @@ public abstract class EntityHuman extends EntityLiving {
 
                 boolean isInWtapTolerance = this.sprintingTicks <= 15; // wtap tolerance
 
-                if (this.shouldDealSprintKnockback || isInWtapTolerance)
+                if (this.shouldDealSprintKnockback || isInWtapTolerance || isSprinting())
                     i++;
 
                 if (f > 0.0F || f1 > 0.0F) {
