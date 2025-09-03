@@ -37,7 +37,7 @@ public class KnockbackCommand extends Command {
             ChatColor.AQUA + "/kb startRange <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set start range for knockback",
             ChatColor.AQUA + "/kb rangeFactor <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set range factor for knockback",
             ChatColor.AQUA + "/kb maxRange <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set max range reduction for knockback",
-            ChatColor.AQUA + "/kb tradeincrement <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set overkidding for knockback",
+            ChatColor.AQUA + "/kb tradeincrement <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set trade increment for knockback",
             ChatColor.AQUA + "/kb verticalLimit <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set vertical limit for knockback"
 
         }, "\n"));

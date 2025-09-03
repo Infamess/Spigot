@@ -129,7 +129,7 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             "Start Range: " + ChatColor.WHITE + this.startRange,
             "Range Factor: " + ChatColor.WHITE + this.rangeFactor,
             "Max Range Reduction: " + ChatColor.WHITE + this.maxRangeReduction,
-            "Trade increment: " + ChatColor.WHITE + this.tradeincrement,
+            "Trade Increment: " + ChatColor.WHITE + this.tradeincrement,
             "Vertical Limit: " + ChatColor.WHITE + this.verticalLimit
         };
     }
@@ -152,16 +152,14 @@ public class CraftKnockbackProfile implements KnockbackProfile {
     private double friction(double range) {
         if (range < 1) return 2.0D;
 
-        double startRange = getStartRange();
+        double startRange = 1.0D;
 
-        double minFriction = 1.0D;
-        double maxFriction = 2.0D;
+        double minFriction = 1.25D;
+        double maxFriction = 2.75D;
 
         double t = (range - startRange) / (maxFriction - startRange);
         t = Math.max(0.0, Math.min(t, 1.0));
         double f = (maxFriction - minFriction) / 4.0f;
-
-
 
         Bukkit.broadcastMessage("t= " + t);
         Bukkit.broadcastMessage("f= " + f);
@@ -221,6 +219,11 @@ public class CraftKnockbackProfile implements KnockbackProfile {
         attacked.motZ = 0;
         attacked.motX += x * horizontal;
         attacked.motY += vertical;
+        if (attacked.motY < -0.078) {
+            attacked.motY = 0.078;
+
+        }
+
         attacked.motZ += z * horizontal;
 
         if (attacked.motY > verticalLimit) {
@@ -267,7 +270,7 @@ public class CraftKnockbackProfile implements KnockbackProfile {
 
             double xz = Math.sqrt(x2 * x2 + z2 * z2);
 
-           // Bukkit.broadcastMessage(String.format(player.getName() + " -> H: %.6f V: %.6f", xz, y2));
+            Bukkit.broadcastMessage(String.format(player.getName() + " -> V: %.6f", y2));
 
             PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity2.clone());
             attacked.world.getServer().getPluginManager().callEvent(event);
