@@ -1111,20 +1111,13 @@ public abstract class Entity implements ICommandListener {
     }
 
     public double h(Entity entity) {
-        if (entity instanceof EntityPlayer) {
-            EntityPlayer entityPlayer = (EntityPlayer) entity;
-            EntityPlayer player = (EntityPlayer) this;
+        if (entity instanceof EntityPlayer entityPlayer) {
             Location location;
             if (entityPlayer.playerConnection.getClass().equals(PlayerConnection.class)) {
-                if (this instanceof EntityPlayer) {
-                    location = LagCompensator.INSTANCE.getHistoryLocation(entityPlayer.getBukkitEntity(),
-                        player.ping);
-                } else {
-                    location = LagCompensator.INSTANCE.getHistoryLocation(entityPlayer.getBukkitEntity(),
-                        0);
-                }
+                location = LagCompensator.INSTANCE.getHistoryLocation(entityPlayer.getBukkitEntity(),
+                    this instanceof EntityPlayer player ? player.ping : 0);
             } else {
-                location = entityPlayer.getBukkitEntity().getLocation();
+               location = entityPlayer.getBukkitEntity().getLocation();
             }
             double d0 = this.locX - location.getX();
             double d1 = this.locY - location.getY();
