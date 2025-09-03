@@ -994,10 +994,6 @@ public abstract class EntityHuman extends EntityLiving {
 
                 boolean isInWtapTolerance = this.sprintingTicks <= 15; // wtap tolerance
 
-                Bukkit.broadcastMessage("sprintingTicks= " + this.sprintingTicks);
-                Bukkit.broadcastMessage("shouldDealSprintKB- " + this.shouldDealSprintKnockback);
-                Bukkit.broadcastMessage("isInWtapTolerance= " + isInWtapTolerance);
-
                 if (this.shouldDealSprintKnockback || isInWtapTolerance)
                     i++;
 

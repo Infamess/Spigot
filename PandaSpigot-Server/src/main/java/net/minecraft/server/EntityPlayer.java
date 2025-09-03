@@ -187,7 +187,6 @@ public class EntityPlayer extends EntityHuman implements ICrafting {
         this.playerConnection.sendPacket(new PacketPlayOutCombatEvent(this.bs(), PacketPlayOutCombatEvent.EnumCombatEventType.END_COMBAT));
     }
 
-
     public void setServerSideSprinting(boolean flag) {
         this.shouldDealSprintKnockback = flag;
         this.sprintingState = flag;

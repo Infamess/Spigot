@@ -163,6 +163,14 @@ public class CraftKnockbackProfile implements KnockbackProfile {
         return attacked.locY - attacker.locY;
     }
 
+    private double calculateMultiplier(double distance) {
+        if (distance <= startRange) {
+            return 0.0;
+        }
+        return rangeFactor * (distance - maxRangeReduction);
+    }
+
+
     @Override
     public void attackEntity(EntityPlayer attacker, Entity attacked, boolean shouldDealSprintKnockback, int i, double[] velocity) {
         attacked.ai = true;
@@ -197,20 +205,19 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             attacked.motY = verticalLimit;
         }
 
-        double horizontalReduction = 0.0;
-        if (distance >= getStartRange()) {
-            double modifiedRange = getRangeFactor() * (distance - getStartRange());
-            horizontalReduction = Math.min(modifiedRange, getMaxRangeReduction());
-        }
 
+        double reduction = 1.0;
         if (distance > 1.0E-5D) {
-            double rangeReduction = Math.min(Math.max((distance - startRange) *
-                    rangeFactor, 0),
-                maxRangeReduction);
+            reduction = 1.0 - calculateMultiplier(distance);
+            reduction = Math.max(1.0 - maxRangeReduction, Math.min(1.0, reduction));
 
-            double d0 = -MathHelper.sin(attacker.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction) * (1.0 - horizontalReduction);
+            double d0 = -MathHelper.sin(attacker.yaw * (float) Math.PI / 180.0F) * i * extraHorizontal * reduction;
             double d1 = extraVertical;
-            double d2 = MathHelper.cos(attacker.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction) * (1.0 - horizontalReduction);
+            double d2 = MathHelper.cos(attacker.yaw * (float) Math.PI / 180.0F) * i * extraHorizontal * reduction;
+
+            // double d0 = -MathHelper.sin(attacker.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction) * (1.0 - horizontalReduction);
+            // double d1 = extraVertical;
+            //  double d2 = MathHelper.cos(attacker.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction) * (1.0 - horizontalReduction);
 
             attacked.motX += d0;
             attacked.motY += d1;
