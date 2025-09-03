@@ -1308,6 +1308,10 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
             this.player.setSprinting(true);
             this.player.setSneaking(false);
             this.player.setServerSideSprinting(true);
+
+            if (this.player.shouldUnblock()) {
+                this.player.bU();
+            }
             break;
 
         case STOP_SPRINTING:
@@ -1416,6 +1420,10 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
                     }
 
                     this.player.attack(entity);
+
+                    if (this.player.isBlocking()) {
+                        this.player.bU();
+                    }
 
                     // CraftBukkit start
                     if (itemInHand != null && itemInHand.count <= -1) {

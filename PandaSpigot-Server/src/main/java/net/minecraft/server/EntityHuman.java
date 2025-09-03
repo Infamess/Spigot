@@ -134,6 +134,20 @@ public abstract class EntityHuman extends EntityLiving {
         return this.bS() && this.g.getItem().e(this.g) == EnumAnimation.BOW;
     }
 
+    public boolean shouldUnblock() {
+        if (!this.bS()) return false;
+        EnumAnimation animation = this.g.getItem().e(this.g);
+        switch (animation) {
+            case BLOCK:
+            case DRINK:
+            case EAT: {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void t_() {
         this.noclip = this.isSpectator();
         if (this.isSpectator()) {

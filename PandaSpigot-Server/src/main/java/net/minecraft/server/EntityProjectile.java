@@ -18,7 +18,15 @@ public abstract class EntityProjectile extends Entity implements IProjectile {
 
     public EntityProjectile(World world) {
         super(world);
-        this.setSize(0.25F, 0.25F);
+        float width = 0.25F;
+        float length = 0.25F;
+        // PulseSpigot start
+        if (this instanceof EntityEnderPearl) {
+            width = 0.2F;
+            length = 0.2F;
+        }
+        // PulseSpigot start
+        this.setSize(width, length);
     }
 
     protected void h() {}
@@ -27,7 +35,14 @@ public abstract class EntityProjectile extends Entity implements IProjectile {
         super(world);
         this.shooter = entityliving;
         this.projectileSource = (org.bukkit.entity.LivingEntity) entityliving.getBukkitEntity(); // CraftBukkit
-        this.setSize(0.25F, 0.25F);
+        float width = 0.25F;
+        float length = 0.25F;
+        if (this instanceof EntityEnderPearl) {
+            width = 0.2F;
+            length = 0.2F;
+        }
+
+        this.setSize(width, length);
         this.setPositionRotation(entityliving.locX, entityliving.locY + (double) entityliving.getHeadHeight(), entityliving.locZ, entityliving.yaw, entityliving.pitch);
         this.locX -= (double) (MathHelper.cos(this.yaw / 180.0F * 3.1415927F) * 0.16F);
         this.locY -= 0.10000000149011612D;
@@ -126,10 +141,15 @@ public abstract class EntityProjectile extends Entity implements IProjectile {
             for (int i = 0; i < list.size(); ++i) {
                 Entity entity1 = (Entity) list.get(i);
 
-                if (entity1.ad() && (entity1 != entityliving || this.ar >= 5)) {
+                if (entity1.ad() && (entity1 != entityliving || this.ar >= 3)) {
                     float f = 0.3F;
                     AxisAlignedBB axisalignedbb = entity1.getBoundingBox().grow((double) f, (double) f, (double) f);
                     MovingObjectPosition movingobjectposition1 = axisalignedbb.a(vec3d, vec3d1);
+
+                   /* if (this instanceof EntityPotion && movingobjectposition1 == null
+                        && getBoundingBox().b(entity1.getBoundingBox())) {
+                        movingobjectposition1 = new MovingObjectPosition(entity1);
+                    }*/
 
                     if (movingobjectposition1 != null) {
                         double d1 = vec3d.distanceSquared(movingobjectposition1.pos);
