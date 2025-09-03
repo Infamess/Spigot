@@ -37,6 +37,7 @@ public class KnockbackCommand extends Command {
             ChatColor.AQUA + "/kb startRange <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set start range for knockback",
             ChatColor.AQUA + "/kb rangeFactor <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set range factor for knockback",
             ChatColor.AQUA + "/kb maxRange <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set max range reduction for knockback",
+            ChatColor.AQUA + "/kb tradeincrement <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set overkidding for knockback",
             ChatColor.AQUA + "/kb verticalLimit <name> <value> " + ChatColor.GRAY + " - " + ChatColor.WHITE + "Set vertical limit for knockback"
 
         }, "\n"));
@@ -230,6 +231,23 @@ public class KnockbackCommand extends Command {
                     }
 
                     profile.setMaxRangeReduction(Double.parseDouble(args[2]));
+                    profile.save();
+                    sender.sendMessage(ChatColor.AQUA + "You have updated " + ChatColor.GREEN + profile.getName() + ChatColor.AQUA + "'s values to:");
+                    for (String value : profile.getValues())
+                        sender.sendMessage(ChatColor.GRAY + "* " + value);
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Wrong syntax.");
+                }
+                return true;
+             case "tradeincrement":
+                if (args.length == 3 && NumberUtils.isNumber(args[2])) {
+                    KnockbackProfile profile = PandaSpigot.getInstance().getConfig().getKbProfileByName(args[1]);
+                    if (profile == null) {
+                        sender.sendMessage(ChatColor.RED + "A profile with that name could not be found.");
+                        return true;
+                    }
+
+                    profile.setTradeIncrement(Double.parseDouble(args[2]));
                     profile.save();
                     sender.sendMessage(ChatColor.AQUA + "You have updated " + ChatColor.GREEN + profile.getName() + ChatColor.AQUA + "'s values to:");
                     for (String value : profile.getValues())

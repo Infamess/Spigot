@@ -19,6 +19,7 @@ public class CraftKnockbackProfile implements KnockbackProfile {
     private double startRange = 1.4;
     private double rangeFactor = 0.1;
     private double maxRangeReduction = 0.4;
+    private double tradeincrement = 0.1051;
     private double verticalLimit = 0.361375;
 
 
@@ -58,6 +59,12 @@ public class CraftKnockbackProfile implements KnockbackProfile {
     }
 
     @Override
+    public double getTradeIncrement() {
+        return tradeincrement;
+    }
+
+
+    @Override
     public double getVerticalLimit() {
         return verticalLimit;
     }
@@ -90,6 +97,11 @@ public class CraftKnockbackProfile implements KnockbackProfile {
         this.maxRangeReduction = maxRangeReduction;
     }
 
+    public void setTradeIncrement(double tradeIncrement) {
+        this.tradeincrement = tradeIncrement;
+    }
+
+
     public void setVerticalLimit(double verticalLimit) {
         this.verticalLimit = verticalLimit;
     }
@@ -117,6 +129,7 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             "Start Range: " + ChatColor.WHITE + this.startRange,
             "Range Factor: " + ChatColor.WHITE + this.rangeFactor,
             "Max Range Reduction: " + ChatColor.WHITE + this.maxRangeReduction,
+            "Trade increment: " + ChatColor.WHITE + this.tradeincrement,
             "Vertical Limit: " + ChatColor.WHITE + this.verticalLimit
         };
     }
@@ -131,6 +144,7 @@ public class CraftKnockbackProfile implements KnockbackProfile {
         PandaSpigot.getInstance().getConfig().set(path + ".start-range", startRange);
         PandaSpigot.getInstance().getConfig().set(path + ".range-factor", rangeFactor);
         PandaSpigot.getInstance().getConfig().set(path + ".max-range-reduction", maxRangeReduction);
+        PandaSpigot.getInstance().getConfig().set(path + ".tradeincrement", tradeincrement);
         PandaSpigot.getInstance().getConfig().set(path + ".vertical-limit", verticalLimit);
         PandaSpigot.getInstance().getConfig().save();
     }
@@ -145,8 +159,12 @@ public class CraftKnockbackProfile implements KnockbackProfile {
 
         double t = (range - startRange) / (maxFriction - startRange);
         t = Math.max(0.0, Math.min(t, 1.0));
-
         double f = (maxFriction - minFriction) / 4.0f;
+
+
+
+        Bukkit.broadcastMessage("t= " + t);
+        Bukkit.broadcastMessage("f= " + f);
 
         if (t < 0.25) {
             return minFriction;
@@ -170,31 +188,14 @@ public class CraftKnockbackProfile implements KnockbackProfile {
         return rangeFactor * (distance - maxRangeReduction);
     }
 
-    private double rangeReduction(double range) {
-        if (range <= startRange) {
-            return 0.0;
-        }
-
-        double reduction = (range - startRange) * rangeFactor;
-        return Math.max(0.0, Math.min(maxRangeReduction, reduction));
-    }
-
-
-    public double horizontalDistance(Entity victim, Entity source) {
-        if (!victim.getBukkitEntity().getWorld().equals(source.getBukkitEntity().getWorld())) {
-            return -1.0;
-        }
-        double d0 = victim.locX - source.locX;
-        double d2 = victim.locZ - source.locZ;
-
-        return Math.hypot(d0, d2);
-    }
 
     @Override
     public void attackEntity(EntityPlayer attacker, Entity attacked, boolean shouldDealSprintKnockback, int i, double[] velocity) {
         attacked.ai = true;
 
-        double friction = 2.0D;//friction(verticalDistance(attacked, attacker));
+        double friction = friction(verticalDistance(attacked, attacker));
+
+        Bukkit.broadcastMessage("friction= " + friction);
 
         double yawX = -MathHelper.sin(attacker.yaw * (float) Math.PI / 180.0F);
         double yawZ = MathHelper.cos(attacker.yaw * (float) Math.PI / 180.0F);
@@ -236,11 +237,16 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             double d1 = extraVertical;
             double d2 = MathHelper.cos(attacker.yaw * (float) Math.PI / 180.0F) * i * extraHorizontal * reduction;
 
-            // double d0 = -MathHelper.sin(attacker.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction) * (1.0 - horizontalReduction);
-            // double d1 = extraVertical;
-            //  double d2 = MathHelper.cos(attacker.yaw * (float) Math.PI / 180.0F) * i * (extraHorizontal - rangeReduction) * (1.0 - horizontalReduction);
-
             attacked.motX += d0;
+
+            if (attacked.isSprintingState() && attacker.isSprintingState()) {
+                Vector attackerDir = attacker.getBukkitEntity().getLocation().getDirection().setY(0F);
+                Vector victimDir = attacked.getBukkitEntity().getLocation().getDirection().setY(0F);
+                if(Math.abs(attackerDir.angle(victimDir)) >= 1){
+                    attacked.motX += d0 * getTradeIncrement() * reduction;
+                }
+            }
+
             attacked.motY += d1;
             attacked.motZ += d2;
             attacked.ai = true;

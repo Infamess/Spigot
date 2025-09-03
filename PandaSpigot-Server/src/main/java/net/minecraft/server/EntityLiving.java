@@ -886,36 +886,6 @@ public abstract class EntityLiving extends Entity {
     }
 
     protected void dropEquipment(boolean flag, int i) {}
-    public double verticalDistance(EntityPlayer victim, Entity source) {
-        return victim.locY - source.locY;
-    }
-
-
-    private double friction(double range) {
-        KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
-
-        if (range < 1) return 2.0D;
-
-        double startRange = knockback.getStartRange();
-
-        double minFriction = 1.0D;
-        double maxFriction = 2.0D;
-
-        double t = (range - startRange) / (maxFriction - startRange);
-        t = Math.max(0.0, Math.min(t, 1.0));
-
-        double f = (maxFriction - minFriction) / 4.0f;
-
-        if (t < 0.25) {
-            return minFriction;
-        } else if (t < 0.5) {
-            return minFriction + f;
-        } else if (t < 0.75) {
-            return minFriction + (2 * f);
-        } else {
-            return maxFriction;
-        }
-    }
 
     public void a(Entity entity, float f, double d0, double d1) {
         if (this.random.nextDouble() >= this.getAttributeInstance(GenericAttributes.c).getValue()) {
@@ -924,7 +894,20 @@ public abstract class EntityLiving extends Entity {
             if (this instanceof EntityHuman || entity instanceof EntityHuman) {
                 return;
             }
+
+        double f1 = MathHelper.sqrt(d0 * d0 + d1 * d1);
+        double f2 = 0.4F;
+        this.motX /= 2.0D;
+        this.motY /= 2.0D;
+        this.motZ /= 2.0D;
+        this.motX -= d0 / (double) f1 * (double) f2;
+        this.motY += 0.4F;
+        this.motZ -= d1 / (double) f1 * (double) f2;
+
+        if (this.motY > 0.4000000059604645D) {
+            this.motY = 0.4000000059604645D;
         }
+    }
     }
 
     protected String bo() {

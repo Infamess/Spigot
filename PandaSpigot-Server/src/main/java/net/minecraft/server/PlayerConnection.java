@@ -1380,7 +1380,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
 
         this.player.resetIdleTimer();
         if (entity != null) {
-            boolean flag = this.player.hasLineOfSightAccurate(entity);
+            boolean flag = true;
             double d0 = 36.0D;
 
             if (!flag) { // PandaSpigot - Fix GH-244: Hit Registration Bug

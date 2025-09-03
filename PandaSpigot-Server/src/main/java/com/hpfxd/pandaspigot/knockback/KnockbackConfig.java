@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-import com.google.common.base.Throwables;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -89,6 +88,7 @@ public class KnockbackConfig {
             profile.setStartRange(getDouble(path + ".start-range", 1.4D));
             profile.setRangeFactor(getDouble(path + ".range-factor", 0.1D));
             profile.setMaxRangeReduction(getDouble(path + ".max-range-reduction", 0.4D));
+            profile.setTradeIncrement(getDouble(path + ".tradeincrement", 0.1051D));
             profile.setVerticalLimit(getDouble(path + ".vertical-limit",  0.361375D));
         }
 

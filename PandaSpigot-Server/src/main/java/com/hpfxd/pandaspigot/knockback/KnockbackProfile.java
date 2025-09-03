@@ -22,6 +22,8 @@ public interface KnockbackProfile {
 
     double getMaxRangeReduction();
 
+    double getTradeIncrement();
+
     double getVerticalLimit();
 
     void setHorizontal(double horizontal);
@@ -37,6 +39,8 @@ public interface KnockbackProfile {
     void setRangeFactor(double rangeFactor);
 
     void setMaxRangeReduction(double maxRangeReduction);
+
+    void setTradeIncrement(double tradeIncrement);
 
     void setVerticalLimit(double verticalLimit);
 

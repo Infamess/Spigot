@@ -1759,7 +1759,14 @@ public abstract class Entity implements ICommandListener {
 
     public int sprintingTicks = Integer.MAX_VALUE;
     public int lastSprintingTick;
+
+    public boolean isSprintingState() {
+        return sprintingState;
+    }
+
     public boolean sprintingState = false;
+
+
 
     public boolean shouldDealSprintKnockback;
 
