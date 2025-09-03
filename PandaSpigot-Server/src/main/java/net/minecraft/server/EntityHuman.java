@@ -4,11 +4,10 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.hpfxd.pandaspigot.PandaSpigot;
 import com.hpfxd.pandaspigot.knockback.KnockbackProfile;
+import com.hpfxd.pandaspigot.util.QueuedTeleport;
 import com.mojang.authlib.GameProfile;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+
+import java.util.*;
 
 // CraftBukkit start
 import org.bukkit.Bukkit;
@@ -71,6 +70,10 @@ public abstract class EntityHuman extends EntityLiving {
     public boolean fauxSleeping;
     public String spawnWorld = "";
     public int oldLevel = -1;
+
+
+    public int ignoreOnGroundTicks = 0;
+    public final Queue<QueuedTeleport> queueTeleports = new ArrayDeque<QueuedTeleport>();
 
     @Override
     public CraftHumanEntity getBukkitEntity() {

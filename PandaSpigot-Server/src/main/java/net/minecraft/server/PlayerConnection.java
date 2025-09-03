@@ -5,6 +5,7 @@ import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 import com.google.common.util.concurrent.Futures;
 import com.hpfxd.pandaspigot.combat.LagCompensator;
+import com.hpfxd.pandaspigot.util.QueuedTeleport;
 import io.netty.buffer.Unpooled;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -213,6 +214,23 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
 
     public void a(PacketPlayInFlying packetplayinflying) {
         PlayerConnectionUtils.ensureMainThread(packetplayinflying, this, this.player.u());
+
+        if (packetplayinflying.hasPos) {
+            for (QueuedTeleport queuedTeleport : new ArrayList<>(this.player.queueTeleports)) {
+                if (queuedTeleport.x == packetplayinflying.x && Math.abs(queuedTeleport.y - packetplayinflying.y) < 1.0E-7 && queuedTeleport.z == packetplayinflying.z) {
+
+                    this.player.ignoreOnGroundTicks = 5;
+                    this.player.queueTeleports.remove(queuedTeleport);
+                    return;
+                }
+            }
+        }
+
+        if (this.player.ignoreOnGroundTicks > 0) {
+            this.player.ignoreOnGroundTicks--;
+        }
+
+
         if (this.b(packetplayinflying)) {
             this.disconnect("Invalid move packet received");
         } else {
@@ -268,7 +286,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
                 double delta = Math.pow(this.lastPosX - to.getX(), 2) + Math.pow(this.lastPosY - to.getY(), 2) + Math.pow(this.lastPosZ - to.getZ(), 2);
                 float deltaAngle = Math.abs(this.lastYaw - to.getYaw()) + Math.abs(this.lastPitch - to.getPitch());
 
-                if ((delta > 1f / 256 || deltaAngle > 10f) && (this.checkMovement && !this.player.dead)) {
+                if ((d3 > 1f / 256 || deltaAngle > 10f) && (this.checkMovement && !this.player.dead)) {
                     this.lastPosX = to.getX();
                     this.lastPosY = to.getY();
                     this.lastPosZ = to.getZ();
@@ -334,6 +352,11 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
 
                         this.player.onGround = packetplayinflying.f();
                         this.player.l();
+
+                        if (!this.player.queueTeleports.isEmpty()) {
+                            return;
+                        }
+
                         this.player.setLocation(d7, d8, d9, f, f1);
                         if (this.player.vehicle != null) {
                             this.player.vehicle.al();
@@ -1364,7 +1387,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
                 d0 = 12.75D;
             }
 
-            if (this.player.distanceSqrdAccurate(entity) <= d0) {
+            if (this.player.h(entity) <= d0) {
                 ItemStack itemInHand = this.player.inventory.getItemInHand(); // CraftBukkit
 
                 if (packetplayinuseentity.a() == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT

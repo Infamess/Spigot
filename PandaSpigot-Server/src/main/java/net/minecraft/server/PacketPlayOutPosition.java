@@ -16,6 +16,22 @@ public class PacketPlayOutPosition implements Packet<PacketListenerPlayOut> {
 
     public PacketPlayOutPosition() {}
 
+    public double getX() {
+        return this.a;
+    }
+
+    public double getY() {
+        return this.b;
+    }
+
+    public double getZ() {
+        return this.c;
+    }
+
+    public Set<EnumPlayerTeleportFlags> getFlags() {
+        return this.f;
+    }
+
     public PacketPlayOutPosition(double d0, double d1, double d2, float f, float f1, Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> set) {
         this.a = d0;
         this.b = d1;

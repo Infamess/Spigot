@@ -1111,41 +1111,34 @@ public abstract class Entity implements ICommandListener {
     }
 
     public double h(Entity entity) {
-        double d0 = this.locX - entity.locX;
-        double d1 = this.locY - entity.locY;
-        double d2 = this.locZ - entity.locZ;
-
-        return d0 * d0 + d1 * d1 + d2 * d2;
-    }
-
-    // WindSpigot start
-    public double distanceSqrdAccurate(Entity entity) {
-        // Only use lag compensation when both entities are players
-        if (entity instanceof EntityPlayer && this instanceof EntityPlayer) {
+        if (entity instanceof EntityPlayer) {
             EntityPlayer entityPlayer = (EntityPlayer) entity;
             EntityPlayer player = (EntityPlayer) this;
-
-            Location loc;
-            if (entityPlayer.playerConnection.getClass().equals(PlayerConnection.class)
-                && player.playerConnection.getClass().equals(PlayerConnection.class)) {
-                loc = LagCompensator.INSTANCE.getHistoryLocation(entityPlayer.getBukkitEntity(),
-                    player.ping);
+            Location location;
+            if (entityPlayer.playerConnection.getClass().equals(PlayerConnection.class)) {
+                if (this instanceof EntityPlayer) {
+                    location = LagCompensator.INSTANCE.getHistoryLocation(entityPlayer.getBukkitEntity(),
+                        player.ping);
+                } else {
+                    location = LagCompensator.INSTANCE.getHistoryLocation(entityPlayer.getBukkitEntity(),
+                        0);
+                }
             } else {
-                loc = entityPlayer.getBukkitEntity().getLocation();
+                location = entityPlayer.getBukkitEntity().getLocation();
             }
-            // Nacho end
-
-            double d0 = this.locX - loc.getX();
-            double d1 = this.locY - loc.getY();
-            double d2 = this.locZ - loc.getZ();
+            double d0 = this.locX - location.getX();
+            double d1 = this.locY - location.getY();
+            double d2 = this.locZ - location.getZ();
 
             return d0 * d0 + d1 * d1 + d2 * d2;
         } else {
-            // Fall back to regular distance calculation for non-player entities
-            return this.h(entity);
+            double d0 = this.locX - entity.locX;
+            double d1 = this.locY - entity.locY;
+            double d2 = this.locZ - entity.locZ;
+
+            return d0 * d0 + d1 * d1 + d2 * d2;
         }
     }
-    // WindSpigot end
 
     public void d(EntityHuman entityhuman) {}
 
