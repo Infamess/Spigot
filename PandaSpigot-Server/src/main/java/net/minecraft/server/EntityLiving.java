@@ -888,10 +888,10 @@ public abstract class EntityLiving extends Entity {
     protected void dropEquipment(boolean flag, int i) {}
 
     public void a(Entity entity, float f, double d0, double d1) {
+        this.ai = true;
         if (this.random.nextDouble() >= this.getAttributeInstance(GenericAttributes.c).getValue()) {
-            this.ai = true;
 
-            if (this instanceof EntityHuman || entity instanceof EntityHuman) {
+            if (/*this instanceof EntityHuman || */entity instanceof EntityPlayer) {
                 return;
             }
 
@@ -907,7 +907,7 @@ public abstract class EntityLiving extends Entity {
         if (this.motY > 0.4000000059604645D) {
             this.motY = 0.4000000059604645D;
         }
-    }
+        }
     }
 
     protected String bo() {

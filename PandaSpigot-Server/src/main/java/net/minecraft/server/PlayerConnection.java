@@ -1332,7 +1332,7 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
             this.player.setSneaking(false);
             this.player.setServerSideSprinting(true);
 
-            if (this.player.shouldUnblock()) {
+            if (this.player.isBlocking()) {
                 this.player.bU();
             }
             break;
