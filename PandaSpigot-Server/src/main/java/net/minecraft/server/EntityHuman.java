@@ -3,6 +3,7 @@ package net.minecraft.server;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.hpfxd.pandaspigot.PandaSpigot;
+import com.hpfxd.pandaspigot.config.PandaSpigotConfig;
 import com.hpfxd.pandaspigot.knockback.KnockbackProfile;
 import com.hpfxd.pandaspigot.util.QueuedTeleport;
 import com.mojang.authlib.GameProfile;
@@ -317,6 +318,17 @@ public abstract class EntityHuman extends EntityLiving {
         if (this.g != null) {
             this.b(this.g, 16);
             int i = this.g.count;
+
+            if (PandaSpigotConfig.get().eatWhileRunningFix && this instanceof EntityPlayer entityPlayer) {
+                if (this.g.m() == EnumAnimation.EAT) {
+                    if (this.activeContainer != defaultContainer || entityPlayer.isSprinting()) {
+                        entityPlayer.playerConnection.sendPacket(new PacketPlayOutSetSlot((byte) 0, activeContainer.getSlot(this.inventory, this.inventory.itemInHandIndex).index, this.g));
+                        entityPlayer.getBukkitEntity().updateInventory();
+                        entityPlayer.getBukkitEntity().updateScaledHealth();
+                        return;
+                    }
+                }
+            }
 
             // CraftBukkit start - fire PlayerItemConsumeEvent
             org.bukkit.inventory.ItemStack craftItem = CraftItemStack.asBukkitCopy(this.g);
@@ -1009,9 +1021,15 @@ public abstract class EntityHuman extends EntityLiving {
 
                 int i = b0 + EnchantmentManager.a((EntityLiving) this);
 
-                boolean isInWtapTolerance = this.sprintingTicks <= 15; // wtap tolerance
+                int maxNoDamageTicks = 20;
+                if (entity instanceof EntityLiving living) {
+                    maxNoDamageTicks = living.maxNoDamageTicks;
+                }
 
-                if (this.shouldDealSprintKnockback || isInWtapTolerance)
+                boolean wtap = this.getSprintingTicks() <= 15 || this.shouldDealSprintKnockback ||
+                    MinecraftServer.currentTick - this.getLastSprintingTick() < maxNoDamageTicks / 2;
+
+                if (wtap)
                     i++;
 
                 if (f > 0.0F || f1 > 0.0F) {
@@ -1043,7 +1061,6 @@ public abstract class EntityHuman extends EntityLiving {
                     if (flag2) {
                         try {
                             KnockbackProfile knockback = (getKnockbackProfile() == null) ? PandaSpigot.getInstance().getConfig().getCurrentKb() : getKnockbackProfile();
-
                             knockback.attackEntity((EntityPlayer) this, entity, this.shouldDealSprintKnockback, i, oldMotions);
                         } catch (Exception e) {
                             e.printStackTrace();

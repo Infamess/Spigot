@@ -796,7 +796,7 @@ public abstract class EntityLiving extends Entity {
                         }
 
                         this.aw = (float) (MathHelper.b(distanceZ, distanceX) * 180.0D / 3.1415927410125732D - (double) this.yaw);
-                        this.a(entity, f, distanceX, distanceZ);
+                        this.a(entity, f, distanceX, distanceZ, damagesource);
                     } else {
                         this.aw = (float) ((int) (Math.random() * 2.0D) * 180);
                     }
@@ -887,26 +887,26 @@ public abstract class EntityLiving extends Entity {
 
     protected void dropEquipment(boolean flag, int i) {}
 
-    public void a(Entity entity, float f, double d0, double d1) {
+    public void a(Entity entity, float f, double d0, double d1, DamageSource source) {
         this.ai = true;
         if (this.random.nextDouble() >= this.getAttributeInstance(GenericAttributes.c).getValue()) {
 
-            if (/*this instanceof EntityHuman || */entity instanceof EntityPlayer) {
+            if (/*this instanceof EntityHuman || entity instanceof EntityPlayer &&*/ !(source instanceof EntityDamageSourceIndirect)) {
                 return;
             }
 
-        double f1 = MathHelper.sqrt(d0 * d0 + d1 * d1);
-        double f2 = 0.4F;
-        this.motX /= 2.0D;
-        this.motY /= 2.0D;
-        this.motZ /= 2.0D;
-        this.motX -= d0 / (double) f1 * (double) f2;
-        this.motY += 0.4F;
-        this.motZ -= d1 / (double) f1 * (double) f2;
+            double f1 = MathHelper.sqrt(d0 * d0 + d1 * d1);
+            double f2 = 0.4F;
+            this.motX /= 2.0D;
+            this.motY /= 2.0D;
+            this.motZ /= 2.0D;
+            this.motX -= d0 / (double) f1 * (double) f2;
+            this.motY += 0.4F;
+            this.motZ -= d1 / (double) f1 * (double) f2;
 
-        if (this.motY > 0.4000000059604645D) {
-            this.motY = 0.4000000059604645D;
-        }
+            if (this.motY > 0.4000000059604645D) {
+                this.motY = 0.4000000059604645D;
+            }
         }
     }
 

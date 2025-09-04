@@ -1757,7 +1757,16 @@ public abstract class Entity implements ICommandListener {
         return this.g(3);
     }
 
+    public int getSprintingTicks() {
+        return sprintingTicks;
+    }
+
     public int sprintingTicks = Integer.MAX_VALUE;
+
+    public int getLastSprintingTick() {
+        return lastSprintingTick;
+    }
+
     public int lastSprintingTick;
 
     public boolean isSprintingState() {

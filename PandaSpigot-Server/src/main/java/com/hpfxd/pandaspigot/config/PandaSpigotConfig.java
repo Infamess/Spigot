@@ -123,4 +123,6 @@ public class PandaSpigotConfig {
     @Comment("Whether player IP addresses should be logged by the server. This does not impact\n" +
         "the ability of plugins to log the IP addresses of players.")
     public boolean logPlayerIpAddresses = true;
+
+    public boolean eatWhileRunningFix = true;
 }

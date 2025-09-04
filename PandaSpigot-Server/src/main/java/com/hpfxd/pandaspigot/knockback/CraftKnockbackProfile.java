@@ -161,9 +161,6 @@ public class CraftKnockbackProfile implements KnockbackProfile {
         t = Math.max(0.0, Math.min(t, 1.0));
         double f = (maxFriction - minFriction) / 4.0f;
 
-        Bukkit.broadcastMessage("t= " + t);
-        Bukkit.broadcastMessage("f= " + f);
-
         if (t < 0.25) {
             return minFriction;
         } else if (t < 0.5) {
@@ -193,8 +190,6 @@ public class CraftKnockbackProfile implements KnockbackProfile {
 
         double friction = friction(verticalDistance(attacked, attacker));
 
-        Bukkit.broadcastMessage("friction= " + friction);
-
         double yawX = -MathHelper.sin(attacker.yaw * (float) Math.PI / 180.0F);
         double yawZ = MathHelper.cos(attacker.yaw * (float) Math.PI / 180.0F);
 
@@ -219,9 +214,9 @@ public class CraftKnockbackProfile implements KnockbackProfile {
         attacked.motZ = 0;
         attacked.motX += x * horizontal;
         attacked.motY += vertical;
-        if (attacked.motY < -0.078) {
-            attacked.motY = 0.078;
 
+        if (attacked.motY < -0.078) {
+            attacked.motY = -0.078;
         }
 
         attacked.motZ += z * horizontal;
@@ -229,7 +224,6 @@ public class CraftKnockbackProfile implements KnockbackProfile {
         if (attacked.motY > verticalLimit) {
             attacked.motY = verticalLimit;
         }
-
 
         double reduction = 1.0;
         if (distance > 1.0E-5D) {
@@ -245,7 +239,7 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             if (attacked.isSprintingState() && attacker.isSprintingState()) {
                 Vector attackerDir = attacker.getBukkitEntity().getLocation().getDirection().setY(0F);
                 Vector victimDir = attacked.getBukkitEntity().getLocation().getDirection().setY(0F);
-                if(Math.abs(attackerDir.angle(victimDir)) >= 1){
+                if (Math.abs(attackerDir.angle(victimDir)) >= 1) {
                     attacked.motX += d0 * getTradeIncrement() * reduction;
                 }
             }
@@ -264,13 +258,13 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             Player player = (Player) attacked.getBukkitEntity();
             org.bukkit.util.Vector velocity2 = new Vector(velocity[0], velocity[1], velocity[2]);
 
-            double x2 = attacked.motX;
+           /* double x2 = attacked.motX;
             double y2 = attacked.motY;
             double z2 = attacked.motZ;
 
             double xz = Math.sqrt(x2 * x2 + z2 * z2);
 
-            Bukkit.broadcastMessage(String.format(player.getName() + " -> V: %.6f", y2));
+            Bukkit.broadcastMessage(String.format(player.getName() + " -> V: %.6f", y2));*/
 
             PlayerVelocityEvent event = new PlayerVelocityEvent(player, velocity2.clone());
             attacked.world.getServer().getPluginManager().callEvent(event);
@@ -280,7 +274,6 @@ public class CraftKnockbackProfile implements KnockbackProfile {
             } else if (!velocity2.equals(event.getVelocity())) {
                 player.setVelocity(event.getVelocity());
             }
-
 
             if (!cancelled) {
                 ((EntityPlayer) attacked).playerConnection.sendPacket(new PacketPlayOutEntityVelocity(attacked));
