@@ -42,11 +42,13 @@ public abstract class EntityProjectile extends Entity implements IProjectile {
             length = 0.2F;
         }
 
+        double xzMultiplier = this instanceof EntityEnderPearl ? 0.0F : 0.16F;
+
         this.setSize(width, length);
         this.setPositionRotation(entityliving.locX, entityliving.locY + (double) entityliving.getHeadHeight(), entityliving.locZ, entityliving.yaw, entityliving.pitch);
-        this.locX -= (double) (MathHelper.cos(this.yaw / 180.0F * 3.1415927F) * 0.16F);
-        this.locY -= this instanceof EntityPotion ? 0.12 : 0.10000000149011612D;
-        this.locZ -= (double) (MathHelper.sin(this.yaw / 180.0F * 3.1415927F) * 0.16F);
+        this.locX -= (double) (MathHelper.cos(this.yaw / 180.0F * 3.1415927F) * xzMultiplier);
+        this.locY -= this instanceof EntityPotion ? 0.12D : 0.10000000149011612D;
+        this.locZ -= (double) (MathHelper.sin(this.yaw / 180.0F * 3.1415927F) * xzMultiplier);
         this.setPosition(this.locX, this.locY, this.locZ);
         float f = 0.4F;
 
